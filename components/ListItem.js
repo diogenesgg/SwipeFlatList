@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React from 'react';
 import {View, Text, StyleSheet, Animated, Dimensions, PanResponder} from 'react-native';
 
@@ -7,17 +8,18 @@ export default class ListItem extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    this.gestureDelay = -35;
+    this.gestureDelay = -5;
     this.scrollViewEnabled = true;
 
     const position = new Animated.ValueXY();
     const panResponder = PanResponder.create({
-      onStartShouldSetPanResponder: (evt, gestureState) => false,
-      onMoveShouldSetPanResponder: (evt, gestureState) => true,
-      onPanResponderTerminationRequest: (evt, gestureState) => false,
+      onMoveShouldSetPanResponderCapture: () => false,
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (e, gestureState) =>  gestureState.dx > 4,
+      onPanResponderTerminationRequest: () => false,
       onPanResponderMove: (evt, gestureState) => {
-        if (gestureState.dx > 35) {
-          this.setScrollViewEnabled(false);
+        if (gestureState.dx > 5) {
+          //this.setScrollViewEnabled(false);
           let newX = gestureState.dx + this.gestureDelay;
           position.setValue({x: newX, y: 0});
         }

@@ -59,7 +59,7 @@ export default class SwipeableList extends Component {
         data={this.state.data}
         ItemSeparatorComponent={this.renderSeparator}
         renderItem={({item}) => this.renderItem(item)}
-        scrollEnabled={this.state.enable}
+        scrollEnabled={true}
       />
     );
   }
