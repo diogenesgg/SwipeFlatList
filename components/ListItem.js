@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import React from 'react';
-import {View, Text, StyleSheet, Animated, Dimensions, PanResponder} from 'react-native';
+import {View, Text, StyleSheet, Animated, Dimensions, PanResponder, TouchableHighlight } from 'react-native';
 
-const {width} = Dimensions.get('window');
+var screenWidth = Dimensions.get('window').width;
 
 export default class ListItem extends React.PureComponent {
   constructor(props) {
@@ -15,37 +15,34 @@ export default class ListItem extends React.PureComponent {
     const panResponder = PanResponder.create({
       onMoveShouldSetPanResponderCapture: () => false,
       onStartShouldSetPanResponder: () => false,
-      onMoveShouldSetPanResponder: (e, gestureState) =>  gestureState.dx > 4,
+      onMoveShouldSetPanResponder: (e, gestureState) =>  Math.abs(gestureState.dx) > 4,
       onPanResponderTerminationRequest: () => false,
       onPanResponderMove: (evt, gestureState) => {
         if (gestureState.dx > 5) {
-          //this.setScrollViewEnabled(false);
           let newX = gestureState.dx + this.gestureDelay;
           position.setValue({x: newX, y: 0});
         }
       },
       onPanResponderRelease: (evt, gestureState) => {
-        if (gestureState.dx < 150) {
+        if (gestureState.dx < 60) {
           Animated.timing(this.state.position, {
             toValue: {x: 0, y: 0},
             duration: 150,
           }).start(() => {
-            this.setScrollViewEnabled(true);
           });
         } else {
           Animated.timing(this.state.position, {
-            toValue: {x: width, y: 0},
+            toValue: {x: screenWidth/3, y: 0},
             duration: 300,
           }).start(() => {
-            this.props.success(this.props.text);
-            this.setScrollViewEnabled(true);
+            //this.props.success(this.props.text);
           });
         }
       },
     });
 
     this.panResponder = panResponder;
-    this.state = {position};
+    this.state = {position, open: false};
   }
 
   setScrollViewEnabled(enabled) {
@@ -55,14 +52,18 @@ export default class ListItem extends React.PureComponent {
     }
   }
 
+  onDeletePressed = () => {
+    console.warn('onDeletePressed')
+  }
+
   render() {
     return (
       <View style={styles.listItem}>
+        <View style={styles.hiddenCell}>
+        <TouchableHighlight onPress={this.onDeletePressed}><Text style={styles.hiddenCellText}>DELETE</Text></TouchableHighlight>
+        </View>
         <Animated.View style={[this.state.position.getLayout()]} {...this.panResponder.panHandlers}>
-          <View style={styles.absoluteCell}>
-            <Text style={styles.absoluteCellText}>DELETE</Text>
-          </View>
-          <View style={styles.innerCell}>
+          <View style={styles.visibleCell}>
             <Text>
               {this.props.text}
             </Text>
@@ -76,28 +77,25 @@ export default class ListItem extends React.PureComponent {
 const styles = StyleSheet.create({
   listItem: {
     height: 80,
-    marginLeft: -100,
     justifyContent: 'center',
-    backgroundColor: 'red',
+    flex: 1
   },
-  absoluteCell: {
+  hiddenCell: {
     position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
-    width: 100,
+    overflow: 'hidden',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
-  absoluteCellText: {
+  hiddenCellText: {
     margin: 16,
-    color: '#FFF',
+    color: '#757575',
   },
-  innerCell: {
-    width: width,
+  visibleCell: {
     height: 80,
-    marginLeft: 100,
     backgroundColor: 'yellow',
     justifyContent: 'center',
     alignItems: 'center',
